@@ -292,13 +292,22 @@ class Window:
 
     def draw_traffic_lights(self):
         for light in self.simulation.traffic_lights:
-            position = (0, 0)  # assuming traffic light's position is along x-axis
-            screen_position = self.to_screen(*position)
+            # Determine the segment the traffic light is associated with
+            # (Assuming each segment has all the traffic lights in its attribute
+            # and you're iterating over all lights in the simulation)
+            segment = traffic_light_to_segment_map[light]
 
-            color = (255, 0, 0) if light.is_red() else (0, 255, 0)  # red for "red" state, green otherwise
+            # Interpolate the position along the segment based on the light's position attribute
+            interpolated_point = segment.get_point(light.position)
 
-            # draw a circle to represent the traffic light at its position
-            dpg.draw_circle(screen_position, radius=5*self.zoom, fill=color, parent="Canvas")
+            # Convert the interpolated point to screen coordinates
+            screen_position = self.to_screen(*interpolated_point)
+
+            # Determine light color
+            color = (255, 0, 0) if light.is_red() else (0, 255, 0)
+
+            # Draw the traffic light at the interpolated position
+            dpg.draw_circle(screen_position, radius=5 * self.zoom, fill=color, parent="Canvas")
 
     def apply_transformation(self):
         screen_center = dpg.create_translation_matrix([self.canvas_width/2, self.canvas_height/2, -0.01])

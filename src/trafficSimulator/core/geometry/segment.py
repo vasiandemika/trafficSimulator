@@ -11,7 +11,7 @@ class Segment(ABC):
     def __init__(self, points):
         self.points = points
         self.vehicles = deque()
-
+        self.traffic_lights = []
         self.set_functions()
 
     def set_functions(self):
@@ -27,6 +27,18 @@ class Segment(ABC):
             self.get_heading = lambda x: headings[0]
         else:
             self.get_heading = interp1d(linspace(0, 1, len(self.points) - 1), headings, axis=0)
+
+    def add_traffic_light(self, traffic_light):
+        self.traffic_lights.append(traffic_light)
+        traffic_light.segment = self  # Optional: Assign the segment to the traffic light for reverse lookup
+
+    def remove_traffic_light(self, traffic_light):
+        self.traffic_lights.remove(traffic_light)
+        traffic_light.segment = None  # Optional: Clear the segment from the traffic light
+
+    def get_traffic_light_position(self, traffic_light):
+        """Get the interpolated position of a traffic light on the segment."""
+        return self.get_point(traffic_light.position)
 
     def get_length(self):
         length = 0

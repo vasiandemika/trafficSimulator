@@ -4,6 +4,7 @@ class TrafficLight:
         self.cycle_time = cycle_time  # Time in seconds for each state (red or green)
         self.time_elapsed = 0  # Time passed since the last state change
         self.state = "red"  # Initial state
+        self.segment = None
 
     def update(self, dt):
         """Update the state of the traffic light."""
@@ -15,3 +16,8 @@ class TrafficLight:
 
     def is_red(self):
         return self.state == "red"
+
+
+    def set_segment(self, segment):
+        """Assign a segment to the traffic light."""
+        self.segment = segment
