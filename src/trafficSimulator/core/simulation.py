@@ -11,7 +11,7 @@ class Simulation:
         self.segments = []
         self.vehicles = {}
         self.vehicle_generator = []
-        self.traffic_lights = []  # List to store all traffic lights
+        self.traffic_lights = []
 
         self.t = 0.0
         self.frame_count = 0
@@ -104,3 +104,6 @@ class Simulation:
         # Increment time
         self.t += self.dt
         self.frame_count += 1
+
+        for light in self.traffic_lights:
+            light.update(self.dt)

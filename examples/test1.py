@@ -36,7 +36,7 @@ sim.create_quadratic_bezier_curve((intersection_size/2, -lane_space/2), (-lane_s
 sim.create_quadratic_bezier_curve((-lane_space/2, -intersection_size/2), (-lane_space/2, lane_space/2), (intersection_size/2, lane_space/2))
 sim.create_quadratic_bezier_curve((-intersection_size/2, lane_space/2), (lane_space/2, lane_space/2), (lane_space/2, -intersection_size/2))
 
-sim.create_traffic_light(0, 10)
+sim.create_traffic_light(25)
 vg = VehicleGenerator({
     'vehicles': [
         (1, {'path': [0, 8, 6], 'v': 16.6}),

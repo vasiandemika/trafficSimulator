@@ -38,7 +38,7 @@ class Vehicle:
         self.sqrt_ab = 2 * np.sqrt(self.a_max * self.b_max)
         self._v_max = self.v_max
 
-    def update(self, lead, dt):
+    def update(self, lead, dt, traffic_light=None):
 
         if traffic_light and traffic_light.is_red() and self.x + self.s0 >= traffic_light.position:
             self.stopped = True

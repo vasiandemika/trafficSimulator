@@ -292,7 +292,7 @@ class Window:
 
     def draw_traffic_lights(self):
         for light in self.simulation.traffic_lights:
-            position = (light.position, 0)  # assuming traffic light's position is along x-axis
+            position = (0, 0)  # assuming traffic light's position is along x-axis
             screen_position = self.to_screen(*position)
 
             color = (255, 0, 0) if light.is_red() else (0, 255, 0)  # red for "red" state, green otherwise
