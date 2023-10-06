@@ -1,4 +1,6 @@
-from trafficSimulator import *
+from src.trafficSimulator.core.simulation import Simulation
+from src.trafficSimulator.core.vehicle_generator import VehicleGenerator
+from src.trafficSimulator.visualizer.window import Window
 
 sim = Simulation()
 
@@ -34,6 +36,7 @@ sim.create_quadratic_bezier_curve((intersection_size/2, -lane_space/2), (-lane_s
 sim.create_quadratic_bezier_curve((-lane_space/2, -intersection_size/2), (-lane_space/2, lane_space/2), (intersection_size/2, lane_space/2))
 sim.create_quadratic_bezier_curve((-intersection_size/2, lane_space/2), (lane_space/2, lane_space/2), (lane_space/2, -intersection_size/2))
 
+sim.create_traffic_light(0, 10)
 vg = VehicleGenerator({
     'vehicles': [
         (1, {'path': [0, 8, 6], 'v': 16.6}),

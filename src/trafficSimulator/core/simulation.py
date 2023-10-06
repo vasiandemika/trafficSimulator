@@ -3,6 +3,7 @@ from .geometry.quadratic_curve import QuadraticCurve
 from .geometry.cubic_curve import CubicCurve
 from .geometry.segment import Segment
 from .vehicle import Vehicle
+from .traffic_light import TrafficLight
 
 
 class Simulation:
@@ -10,11 +11,11 @@ class Simulation:
         self.segments = []
         self.vehicles = {}
         self.vehicle_generator = []
+        self.traffic_lights = []  # List to store all traffic lights
 
         self.t = 0.0
         self.frame_count = 0
-        self.dt = 1/60  
-
+        self.dt = 1 / 60
 
     def add_vehicle(self, veh):
         self.vehicles[veh.id] = veh
@@ -27,7 +28,9 @@ class Simulation:
     def add_vehicle_generator(self, gen):
         self.vehicle_generator.append(gen)
 
-    
+    def add_traffic_light(self, light):
+        self.traffic_lights.append(light)
+
     def create_vehicle(self, **kwargs):
         veh = Vehicle(kwargs)
         self.add_vehicle(veh)
@@ -48,6 +51,9 @@ class Simulation:
         gen = VehicleGenerator(kwargs)
         self.add_vehicle_generator(gen)
 
+    def create_traffic_light(self, position, cycle_time=10):
+        light = TrafficLight(position, cycle_time)
+        self.add_traffic_light(light)
 
     def run(self, steps):
         for _ in range(steps):
@@ -56,10 +62,20 @@ class Simulation:
     def update(self):
         # Update vehicles
         for segment in self.segments:
-            if len(segment.vehicles) != 0:
-                self.vehicles[segment.vehicles[0]].update(None, self.dt)
-            for i in range(1, len(segment.vehicles)):
-                self.vehicles[segment.vehicles[i]].update(self.vehicles[segment.vehicles[i-1]], self.dt)
+            for i, vehicle_id in enumerate(segment.vehicles):
+                vehicle = self.vehicles[vehicle_id]
+
+                # Check if there's a red light ahead of the vehicle in the current segment
+                red_light_ahead = None
+                for light in self.traffic_lights:
+                    if vehicle.x + vehicle.s0 >= light.position and light.is_red():
+                        red_light_ahead = light
+                        break
+
+                if i == 0:
+                    vehicle.update(None, self.dt, red_light_ahead)
+                else:
+                    vehicle.update(self.vehicles[segment.vehicles[i - 1]], self.dt, red_light_ahead)
 
         # Check roads for out of bounds vehicle
         for segment in self.segments:
@@ -80,7 +96,7 @@ class Simulation:
                 # Reset vehicle properties
                 vehicle.x = 0
                 # In all cases, remove it from its road
-                segment.vehicles.popleft() 
+                segment.vehicles.popleft()
 
         # Update vehicle generators
         for gen in self.vehicle_generator:
