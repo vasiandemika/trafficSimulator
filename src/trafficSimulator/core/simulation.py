@@ -9,25 +9,32 @@ class Simulation:
     def __init__(self):
         self.segments = []
         self.vehicles = {}
+        self.traffic_lights = []
         self.vehicle_generator = []
 
         self.t = 0.0
         self.frame_count = 0
-        self.dt = 1/60  
-
+        self.dt = 1 / 60
 
     def add_vehicle(self, veh):
         self.vehicles[veh.id] = veh
         if len(veh.path) > 0:
             self.segments[veh.path[0]].add_vehicle(veh)
 
+    def add_traffic_light(self, traffic_light):
+        self.traffic_lights.append(traffic_light)
+
     def add_segment(self, seg):
         self.segments.append(seg)
+
+    def create_traffic_light(self, duration):
+        from src.trafficSimulator.core.traffic_light import TrafficLight
+        tl = TrafficLight(duration)
+        self.traffic_lights.append(tl)
 
     def add_vehicle_generator(self, gen):
         self.vehicle_generator.append(gen)
 
-    
     def create_vehicle(self, **kwargs):
         veh = Vehicle(kwargs)
         self.add_vehicle(veh)
@@ -48,18 +55,37 @@ class Simulation:
         gen = VehicleGenerator(kwargs)
         self.add_vehicle_generator(gen)
 
-
     def run(self, steps):
         for _ in range(steps):
             self.update()
 
     def update(self):
+        # Update lead vehicles for all vehicles
+        for segment in self.segments:
+            for i in range(1, len(segment.vehicles)):
+                current_vehicle = self.vehicles[segment.vehicles[i]]
+                lead_vehicle = self.vehicles[segment.vehicles[i - 1]]
+
+                if lead_vehicle.x - current_vehicle.x < 5:
+                    current_vehicle.lead_vehicle = lead_vehicle
+                else:
+                    current_vehicle.lead_vehicle = None
+
+                # Check if the vehicle should stop for a traffic light
+                if current_vehicle.should_stop_for_traffic_light(self.traffic_lights):
+                    current_vehicle.v = 0
+                    current_vehicle.a = 0
+
+        # Update traffic lights
+        for tl in self.traffic_lights:
+            tl.update(self.dt)
+
         # Update vehicles
         for segment in self.segments:
             if len(segment.vehicles) != 0:
-                self.vehicles[segment.vehicles[0]].update(None, self.dt)
+                self.vehicles[segment.vehicles[0]].update(None, self.dt, self.traffic_lights)
             for i in range(1, len(segment.vehicles)):
-                self.vehicles[segment.vehicles[i]].update(self.vehicles[segment.vehicles[i-1]], self.dt)
+               self.vehicles[segment.vehicles[i]].update(self.vehicles[segment.vehicles[i - 1]], self.dt, self.traffic_lights)
 
         # Check roads for out of bounds vehicle
         for segment in self.segments:
@@ -80,7 +106,7 @@ class Simulation:
                 # Reset vehicle properties
                 vehicle.x = 0
                 # In all cases, remove it from its road
-                segment.vehicles.popleft() 
+                segment.vehicles.popleft()
 
         # Update vehicle generators
         for gen in self.vehicle_generator:
@@ -88,3 +114,5 @@ class Simulation:
         # Increment time
         self.t += self.dt
         self.frame_count += 1
+
+

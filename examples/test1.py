@@ -1,4 +1,5 @@
-from trafficSimulator import *
+from src.trafficSimulator import *
+from src.trafficSimulator.core.traffic_light import TrafficLight
 
 sim = Simulation()
 
@@ -34,6 +35,19 @@ sim.create_quadratic_bezier_curve((intersection_size/2, -lane_space/2), (-lane_s
 sim.create_quadratic_bezier_curve((-lane_space/2, -intersection_size/2), (-lane_space/2, lane_space/2), (intersection_size/2, lane_space/2))
 sim.create_quadratic_bezier_curve((-intersection_size/2, lane_space/2), (lane_space/2, lane_space/2), (lane_space/2, -intersection_size/2))
 
+# Create Traffic Lights for the intersection with a 10-second duration
+tl_duration = 10
+tl1 = TrafficLight(tl_duration, (6.5, 10), 'RED')
+tl2 = TrafficLight(tl_duration, (10, -6.5), 'GREEN')
+tl3 = TrafficLight(tl_duration, (-10, 6.5), 'GREEN')
+tl4 = TrafficLight(tl_duration, (-6.5, -10), 'RED')
+
+# Add traffic lights to the simulation
+sim.add_traffic_light(tl1)
+sim.add_traffic_light(tl2)
+sim.add_traffic_light(tl3)
+sim.add_traffic_light(tl4)
+
 vg = VehicleGenerator({
     'vehicles': [
         (1, {'path': [0, 8, 6], 'v': 16.6}),
@@ -47,7 +61,8 @@ sim.add_vehicle_generator(vg)
 # v = Vehicle({'path': [0], 'x': 20, 'v':16.6})
 # sim.add_vehicle(v)
 
-# v = Vehicle({'path': [0]})
+# v = Vehicle({'path': [0], 'x': 20})
+# v.stopped = True
 # sim.add_vehicle(v)
 
 win = Window(sim)
